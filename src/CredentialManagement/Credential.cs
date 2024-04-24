@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.InteropServices;
 using System.Security;
 using System.Security.Permissions;
 using System.Text;
@@ -29,10 +30,6 @@ namespace CredentialManagement
         /// <summary>
         /// 
         /// </summary>
-        private String_Format _format { get; set; }
-        /// <summary>
-        /// 
-        /// </summary>
         private string _target { get; set; }
         /// <summary>
         /// 
@@ -54,6 +51,10 @@ namespace CredentialManagement
         /// 
         /// </summary>
         private PersistanceType _persistanceType { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool _maxCredentialBlobSize { get; set; }
         /// <summary>
         /// 
         /// </summary>
@@ -105,25 +106,12 @@ namespace CredentialManagement
         /// <param name="password"></param>
         /// <param name="target"></param>
         /// <param name="type"></param>
-        public Credential(string username, string password, string target, CredentialType type) 
-            : this(username, password, target, type, String_Format.Unicode)
-        {
-        }
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <param name="target"></param>
-        /// <param name="type"></param>
-        /// <param name="format"></param>
-        public Credential(string username, string password, string target, CredentialType type, String_Format format)
+        public Credential(string username, string password, string target, CredentialType type)
         {
             Username = username;
             Password = password;
             Target = target;
             Type = type;
-            Format = format;
             PersistanceType = PersistanceType.Session;
             _lastWriteTime = DateTime.MinValue;
         }
@@ -275,7 +263,10 @@ namespace CredentialManagement
                 CheckNotDisposed();
                 return _lastWriteTime;
             }
-            private set { _lastWriteTime = value; }
+            private set 
+            { 
+                _lastWriteTime = value; 
+            }
         }
         /// <summary>
         /// 
@@ -296,22 +287,6 @@ namespace CredentialManagement
         /// <summary>
         /// 
         /// </summary>
-        public String_Format Format
-        {
-            get
-            {
-                CheckNotDisposed();
-                return _format;
-            }
-            set
-            {
-                CheckNotDisposed();
-                _format = value;
-            }
-        }
-        /// <summary>
-        /// 
-        /// </summary>
         public PersistanceType PersistanceType
         {
             get
@@ -326,6 +301,36 @@ namespace CredentialManagement
             }
         }
         /// <summary>
+        /// Maximum size in bytes of a credential that can be stored. While the API 
+        /// documentation lists 512 as the max size, the current Windows SDK sets  
+        /// it to 5*512 via CRED_MAX_CREDENTIAL_BLOB_SIZE in wincred.h. This has 
+        /// been verified to work on Windows Server 2016 and later with Windows 10 1803 build 17134.523 and later. 
+        /// <para>
+        /// API Doc: https://docs.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentiala
+        /// </para>
+        /// </summary>
+        /// <remarks>
+        /// This only controls the guard in the library. The actual underlying OS
+        /// controls the actual limit. Operating Systems older than Windows Server
+        /// 2016 may only support 512 bytes.
+        /// <para>
+        /// Tokens often are 1040 bytes or more.
+        /// </para>
+        /// </remarks>
+        public bool MaxCredentialBlobSize
+        {
+            get
+            {
+                CheckNotDisposed();
+                return _maxCredentialBlobSize;
+            }
+            set
+            {
+                CheckNotDisposed();
+                _maxCredentialBlobSize = value;
+            }
+        }
+        /// <summary>
         /// 
         /// </summary>
         /// <returns></returns>
@@ -335,31 +340,38 @@ namespace CredentialManagement
             CheckNotDisposed();
             _unmanagedCodePermission.Demand();
 
-            String_Format_Provider FormatProvider = String_Format_Provider.GetProvider(Format);
-            byte[] passwordBytes = FormatProvider.GetBytes(Password);
-            // CRED_MAX_CREDENTIAL_BLOB_SIZE is (512 * 5)
+            // CRED_MAX_CREDENTIAL_BLOB_SIZE is 2560
             // https://learn.microsoft.com/en-us/windows/win32/api/wincred/ns-wincred-credentiala
-            if (Password.Length > (512 * 5))
+            if (Password.Length > (MaxCredentialBlobSize ? 2560 : 512))
             {
-                throw new ArgumentOutOfRangeException("The password has exceeded 512 * 5 bytes.");
+                throw new ArgumentOutOfRangeException($"The password has exceeded {(MaxCredentialBlobSize ? 2560 : 512)} bytes.");
             }
 
             NativeMethods.CREDENTIAL credential = new NativeMethods.CREDENTIAL();
-            credential.TargetName = Target;
-            credential.UserName = Username;
-            credential.CredentialBlob = FormatProvider.StringToCoTaskMem(Password);
-            credential.CredentialBlobSize = passwordBytes.Length;
-            credential.Comment = Description;
-            credential.Type = (int)Type;
-            credential.Persist = (int) PersistanceType;
 
-            bool result = NativeMethods.CredWrite(ref credential, 0);
-            if (!result)
+            try
             {
-                return false;
+                credential.TargetName = Target;
+                credential.UserName = Username;
+                credential.CredentialBlob = Marshal.StringToCoTaskMemUni(Password);
+                credential.CredentialBlobSize = Encoding.Unicode.GetBytes(Password).Length;
+                credential.Comment = Description;
+                credential.Type = (int)Type;
+                credential.Persist = (int)PersistanceType;
+
+                bool result = NativeMethods.CredWrite(ref credential, 0);
+                if (!result)
+                {
+                    return false;
+                }
+                LastWriteTimeUtc = DateTime.UtcNow;
+                return true;
             }
-            LastWriteTimeUtc = DateTime.UtcNow;
-            return true;
+            finally
+            {
+                if (credential.CredentialBlob != default)
+                    Marshal.FreeCoTaskMem(credential.CredentialBlob);
+            }
         }
         /// <summary>
         /// 
@@ -389,18 +401,25 @@ namespace CredentialManagement
             CheckNotDisposed();
             _unmanagedCodePermission.Demand();
 
-            IntPtr credPointer;
-
-            bool result = NativeMethods.CredRead(Target, Type, 0, out credPointer);
-            if (!result)
+            IntPtr credPointer = default;
+            try
             {
-                return false;
+                bool result = NativeMethods.CredRead(Target, Type, 0, out credPointer);
+                if (!result)
+                {
+                    return false;
+                }
+                using (NativeMethods.CriticalCredentialHandle credentialHandle = new NativeMethods.CriticalCredentialHandle(credPointer))
+                {
+                    LoadInternal(credentialHandle.GetCredential());
+                }
+                return true;
             }
-            using (NativeMethods.CriticalCredentialHandle credentialHandle = new NativeMethods.CriticalCredentialHandle(credPointer))
+            finally
             {
-                LoadInternal(credentialHandle.GetCredential());
+                if (credPointer != default)
+                    credPointer = default;
             }
-            return true;
         }
         /// <summary>
         /// 
@@ -431,7 +450,7 @@ namespace CredentialManagement
             Username = credential.UserName;
             if (credential.CredentialBlobSize > 0)
             {
-                Password = String_Format_Provider.GetProvider(Format).PtrToString(credential.CredentialBlob, credential.CredentialBlobSize / 2);
+                Password = Marshal.PtrToStringUni(credential.CredentialBlob, credential.CredentialBlobSize / 2);
             }
             Target = credential.TargetName;
             Type = (CredentialType)credential.Type;

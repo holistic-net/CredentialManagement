@@ -24,3 +24,5 @@ jobs:
       run: dotnet restore "src\CredentialManagement\CredentialManagement.csproj" --ignore-failed-sources      
     - name: Build
       run: dotnet build "src\CredentialManagement\CredentialManagement.csproj" --configuration Release
+    - name: Test
+      run: dotnet test "src\CredentialManagement.Test\CredentialManagement.Test.csproj" --configuration Release --no-build    
