@@ -6,12 +6,22 @@ using System.Text;
 
 namespace CredentialManagement
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class XPPrompt : BaseCredentialsPrompt
     {
-
-        string _target;
-        Bitmap _banner;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        private string _target { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
+        private Bitmap _banner { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public string Target
         {
             get
@@ -29,6 +39,9 @@ namespace CredentialManagement
                 _target = value;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public Bitmap Banner
         {
             get
@@ -46,7 +59,9 @@ namespace CredentialManagement
                 _banner = value;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public bool CompleteUsername
         {
             get
@@ -60,6 +75,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.COMPLETE_USERNAME);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool DoNotPersist
         {
             get
@@ -73,6 +91,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.DO_NOT_PERSIST);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool ExcludeCertificates
         {
             get
@@ -86,6 +107,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.EXCLUDE_CERTIFICATES);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool ExpectConfirmation
         {
             get
@@ -99,6 +123,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.EXPECT_CONFIRMATION);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool IncorrectPassword
         {
             get
@@ -112,6 +139,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.INCORRECT_PASSWORD);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool Persist
         {
             get
@@ -125,6 +155,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.PERSIST);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool RequestAdministrator
         {
             get
@@ -138,6 +171,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.REQUEST_ADMINISTRATOR);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool RequireCertificate
         {
             get
@@ -151,6 +187,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.REQUIRE_CERTIFICATE);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool RequireSmartCard
         {
             get
@@ -164,6 +203,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.REQUIRE_SMARTCARD);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool UsernameReadOnly
         {
             get
@@ -177,6 +219,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.KEEP_USERNAME);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool ValidateUsername
         {
             get
@@ -190,6 +235,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.VALIDATE_USERNAME);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public override bool ShowSaveCheckBox
         {
             get
@@ -203,6 +251,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.SHOW_SAVE_CHECK_BOX);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public override bool GenericCredentials
         {
             get
@@ -216,6 +267,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.GENERIC_CREDENTIALS);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public bool AlwaysShowUI
         {
             get
@@ -229,13 +283,23 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINXP_CREDUI_FLAGS.ALWAYS_SHOW_UI);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <returns></returns>
         protected override NativeMethods.CREDUI_INFO CreateCREDUI_INFO(IntPtr owner)
         {
             NativeMethods.CREDUI_INFO info = base.CreateCREDUI_INFO(owner);
             info.hbmBanner = null == Banner ? IntPtr.Zero : Banner.GetHbitmap();
             return info;
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
         public override DialogResult ShowDialog(IntPtr owner)
         {
             CheckNotDisposed();

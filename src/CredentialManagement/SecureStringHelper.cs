@@ -4,10 +4,17 @@ using System.Security;
 
 namespace CredentialManagement
 {
+    /// <summary>
+    /// 
+    /// </summary>
     [SuppressUnmanagedCodeSecurity]
     internal static class SecureStringHelper
     {
-        // Methods
+        /// <summary>
+        /// Methods
+        /// </summary>
+        /// <param name="plainString"></param>
+        /// <returns></returns>
         internal static unsafe SecureString CreateSecureString(string plainString)
         {
             SecureString str;
@@ -23,7 +30,11 @@ namespace CredentialManagement
             }
             return str;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="secureString"></param>
+        /// <returns></returns>
         internal static string CreateString(SecureString secureString)
         {
             string str;
@@ -47,6 +58,4 @@ namespace CredentialManagement
             return str;
         }
     }
-
-
 }

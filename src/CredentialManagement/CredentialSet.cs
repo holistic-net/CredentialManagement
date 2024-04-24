@@ -7,14 +7,26 @@ using System.Runtime.InteropServices;
 
 namespace CredentialManagement
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class CredentialSet: List<Credential>, IDisposable
     {
-        bool _disposed;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool _disposed { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public CredentialSet()
         {
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="target"></param>
+        /// <exception cref="ArgumentNullException"></exception>
         public CredentialSet(string target)
             : this()
         {
@@ -24,10 +36,13 @@ namespace CredentialManagement
             }
             Target = target;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Target { get; set; }
-
-
+        /// <summary>
+        /// 
+        /// </summary>
         public void Dispose()
         {
             Dispose(true);
@@ -35,12 +50,17 @@ namespace CredentialManagement
             // Prevent GC Collection since we have already disposed of this object
             GC.SuppressFinalize(this);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         ~CredentialSet()
         {
             Dispose(false);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="disposing"></param>
         private void Dispose(bool disposing)
         {
             if (!_disposed)
@@ -55,13 +75,18 @@ namespace CredentialManagement
             }
             _disposed = true;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <returns></returns>
         public CredentialSet Load()
         {
             LoadInternal();
             return this;
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         private void LoadInternal()
         {
             uint count;
@@ -102,7 +127,5 @@ namespace CredentialManagement
             // Clean up memory to the Enumeration pointer
             NativeMethods.CredFree(pCredentials);
         }
-
     }
-
 }

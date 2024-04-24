@@ -5,15 +5,25 @@ using System.Text;
 
 namespace CredentialManagement
 {
+    /// <summary>
+    /// 
+    /// </summary>
     public class VistaPrompt: BaseCredentialsPrompt
     {
-        string _domain;
-
+        /// <summary>
+        /// 
+        /// </summary>
+        private string _domain { get; set; }
+        /// <summary>
+        /// 
+        /// </summary>
         public VistaPrompt()
         {
             Title = "Please provide credentials";
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         public string Domain
         {
             get
@@ -31,6 +41,9 @@ namespace CredentialManagement
                 _domain = value;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public override bool ShowSaveCheckBox
         {
             get
@@ -44,6 +57,9 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINVISTA_CREDUI_FLAGS.CREDUIWIN_CHECKBOX);
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
         public override bool GenericCredentials
         {
             get
@@ -57,7 +73,13 @@ namespace CredentialManagement
                 AddFlag(value, (int)NativeMethods.WINVISTA_CREDUI_FLAGS.CREDUIWIN_GENERIC);
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="owner"></param>
+        /// <returns></returns>
+        /// <exception cref="InvalidOperationException"></exception>
+        /// <exception cref="Win32Exception"></exception>
         public override DialogResult ShowDialog(IntPtr owner)
         {
             CheckNotDisposed();
@@ -164,8 +186,10 @@ namespace CredentialManagement
 
             return DialogResult.OK;
         }
-
-        bool IsWinVistaOrHigher
+        /// <summary>
+        /// 
+        /// </summary>
+        private bool IsWinVistaOrHigher
         {
             get
             {
