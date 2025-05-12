@@ -1,4 +1,3 @@
-name: Build Status - Development
 on:
   push:
     branches:
