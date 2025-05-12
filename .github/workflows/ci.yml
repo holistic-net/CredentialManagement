@@ -8,21 +8,10 @@ on:
     - development
 jobs:
   build:
-    runs-on: windows-latest
+    runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-    - name: Branch Checkout
-      uses: actions/checkout@v2.4.0
-    - name: Set Custom NuGet Packages
-      run: |
-        dotnet nuget add source ${env:PrivateNuGetUrl} -n "SBRW Launcher Libraries" -u ${env:GHUserName} -p ${env:Password} --store-password-in-clear-text
-      env:
-        PrivateNuGetUrl: ${{ secrets.SBRW_LIBRARIES_LAUNCHER_NUGET_URL }}
-        GHUserName: ${{ secrets.SBRW_LIBRARIES_LAUNCHER_USERNAME }}
-        Password: ${{ secrets.SBRW_LIBRARIES_LAUNCHER_OUTHTOKEN }}
-    - name: Restore Custom NuGet Packages
-      run: dotnet restore "src\CredentialManagement\CredentialManagement.csproj" --ignore-failed-sources      
-    - name: Build
-      run: dotnet build "src\CredentialManagement\CredentialManagement.csproj" --configuration Release
-    - name: Test
-      run: dotnet test "src\CredentialManagement.Test\CredentialManagement.Test.csproj" --configuration Release --no-build    
+    - uses: actions/checkout@v4
+    - run: dotnet restore "src\CredentialManagement\CredentialManagement.csproj"
+    - run: dotnet build "src\CredentialManagement\CredentialManagement.csproj" --configuration Release
+    - run: dotnet test "src\CredentialManagement.Test\CredentialManagement.Test.csproj" --configuration Release --no-build    
