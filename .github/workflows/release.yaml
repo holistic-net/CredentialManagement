@@ -3,6 +3,10 @@ defaults:
   run:
     working-directory: ./src/CredentialManagement
 
+permissions:
+  contents: read
+  packages: write
+
 on:
   release:
     types: [published]
