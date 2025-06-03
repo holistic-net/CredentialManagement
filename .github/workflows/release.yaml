@@ -23,3 +23,5 @@ jobs:
     - run: dotnet build --configuration Release
     - run: dotnet pack --configuration Release --output ./nupkgs
     - run: dotnet nuget push "bin/Release/*.nupkg" --api-key ${{ secrets.GITHUB_TOKEN }} --source "github"
+    - run: dotnet nuget push "bin/Release/*.nupkg" --api-key ${{ NUGET_ORG_TOKEN }} --source https://api.nuget.org/v3/index.json
+    
