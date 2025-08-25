@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
-    - uses: actions/checkout@v4
+    - uses: actions/checkout@v5
     - run: dotnet restore "src\CredentialManagement\CredentialManagement.csproj"
     - run: dotnet build "src\CredentialManagement\CredentialManagement.csproj" --configuration Release
     - run: dotnet test "src\CredentialManagement.Test\CredentialManagement.Test.csproj" --configuration Release --no-build    
