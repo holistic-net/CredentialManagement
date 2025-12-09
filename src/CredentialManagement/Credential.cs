@@ -14,7 +14,7 @@ namespace CredentialManagement
         /// <summary>
         /// 
         /// </summary>
-        private static object _lockObject = new object();
+        private static readonly object _lockObject = new object();
         /// <summary>
         /// 
         /// </summary>
@@ -138,13 +138,10 @@ namespace CredentialManagement
         /// <param name="disposing"></param>
         private void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!_disposed && disposing)
             {
-                if (disposing)
-                {
                     SecurePassword.Clear();
                     SecurePassword.Dispose();
-                }
             }
             _disposed = true;
         }
@@ -418,7 +415,7 @@ namespace CredentialManagement
             finally
             {
                 if (credPointer != default)
-                    credPointer = default;
+                    credPointer = IntPtr.Zero;
             }
         }
         /// <summary>
