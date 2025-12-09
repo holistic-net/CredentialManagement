@@ -138,13 +138,10 @@ namespace CredentialManagement
         /// <param name="disposing"></param>
         private void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!_disposed && disposing)
             {
-                if (disposing)
-                {
                     SecurePassword.Clear();
                     SecurePassword.Dispose();
-                }
             }
             _disposed = true;
         }

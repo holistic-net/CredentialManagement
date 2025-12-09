@@ -63,15 +63,9 @@ namespace CredentialManagement
         /// <param name="disposing"></param>
         private void Dispose(bool disposing)
         {
-            if (!_disposed)
+            if (!_disposed && disposing && Count > 0)
             {
-                if (disposing)
-                {
-                    if (Count > 0)
-                    {
-                        ForEach(cred => cred.Dispose());
-                    }
-                }
+				ForEach(cred => cred.Dispose());
             }
             _disposed = true;
         }
