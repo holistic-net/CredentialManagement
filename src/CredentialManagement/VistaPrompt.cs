@@ -178,9 +178,12 @@ namespace CredentialManagement
                 Username = usernameBuffer.ToString();
                 Password = passwordBuffer.ToString();
 
+                // After use, explicitly zero out
                 if (passwordBuffer.Length > 0)
                 {
                     passwordBuffer.Remove(0, passwordBuffer.Length);
+					passwordBuffer.Capacity = 0;
+					passwordBuffer = null;
                 }
             }
 

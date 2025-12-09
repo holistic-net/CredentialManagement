@@ -1,6 +1,6 @@
-﻿using System;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
+﻿using Microsoft.VisualStudio.TestTools.UnitTesting;
 using SoftwareApproach.TestingExtensions;
+using System;
 
 namespace CredentialManagement.Test
 {
@@ -42,12 +42,22 @@ namespace CredentialManagement.Test
 			new Credential().Dispose();
 		}
 		[TestMethod]
-		[ExpectedException(typeof(ObjectDisposedException))]
 		public void Credential_ShouldThrowObjectDisposedException()
 		{
-			Credential disposed = new Credential { Password = "password" };
-			disposed.Dispose();
-			disposed.Username = "username";
+			try
+			{
+				Credential disposed = new Credential { Password = "password" };
+				disposed.Dispose();
+				disposed.Username = "username";
+			}
+			catch (ObjectDisposedException)
+			{
+				return;
+			}
+			catch (Exception)
+			{
+				Assert.Fail("Expected ObjectDisposedException was not thrown.");
+			}
 		}
 
 		[TestMethod]

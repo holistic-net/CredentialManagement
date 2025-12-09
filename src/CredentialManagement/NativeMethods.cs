@@ -480,5 +480,8 @@ namespace CredentialManagement
                 return false;
             }
         }
+
+        [DllImport("kernel32.dll")]
+        internal static extern void ZeroMemory(IntPtr addr, UIntPtr size);
     }
 }

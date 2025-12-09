@@ -47,15 +47,16 @@ namespace CredentialManagement
             {
                 zero = Marshal.SecureStringToBSTR(secureString);
                 str = Marshal.PtrToStringBSTR(zero);
+                return str;
             }
             finally
             {
                 if (zero != IntPtr.Zero)
                 {
                     Marshal.ZeroFreeBSTR(zero);
+					str = null;
                 }
             }
-            return str;
         }
     }
 }
