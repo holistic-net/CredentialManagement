@@ -418,7 +418,7 @@ namespace CredentialManagement
             finally
             {
                 if (credPointer != default)
-                    credPointer = default;
+                    credPointer = IntPtr.Zero;
             }
         }
         /// <summary>
