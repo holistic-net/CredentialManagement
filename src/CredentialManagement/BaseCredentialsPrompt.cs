@@ -18,7 +18,7 @@ namespace CredentialManagement
 		/// <summary>
 		/// 
 		/// </summary>
-		private static object _lockObject = new object();
+		private static readonly object _lockObject = new object();
 		/// <summary>
 		/// 
 		/// </summary>
